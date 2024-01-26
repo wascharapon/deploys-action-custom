@@ -15,6 +15,7 @@ async function run() {
 
 		const deployApp = await installer.install()
 		core.info('Deploys CLI installed successfully')
+		core.info(`Request inputs:${JSON.stringify(inputs)}`)
 
 		const deployHandler = new DeployHandler()
 		let cmd = await deployHandler.main(inputs, deployApp)

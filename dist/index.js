@@ -5014,7 +5014,6 @@
 
           const exePath = path.join(cachePath, 'deploys')
           core.debug(`Exe path is ${exePath}`)
-          core.debug(`Test version : 2`)
           return exePath
         }
 
@@ -5244,7 +5243,8 @@
 
         const deployApp = await installer.install()
         core.info('Deploys CLI installed successfully')
-
+        core.info(`Request inputs:${JSON.stringify(inputs)}`)
+        
         const deployHandler = new DeployHandler()
         let cmd = await deployHandler.main(inputs, deployApp)
 

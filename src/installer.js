@@ -23,7 +23,6 @@ export async function install() {
 
 	const exePath = path.join(cachePath, 'deploys')
 	core.debug(`Exe path is ${exePath}`)
-	core.debug(`Test version : 2`)
 	return exePath
 }
 
