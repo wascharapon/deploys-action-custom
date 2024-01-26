@@ -5230,6 +5230,10 @@
     const exec = __nccwpck_require__(514)
     const installer = __nccwpck_require__(127)
 
+    const core = require('@actions/core')
+    const exec = require('@actions/exec')
+    const installer = require('./installer')
+    
     async function run() {
       try {
         const inputs = {
@@ -5240,14 +5244,14 @@
           type: core.getInput('type'),
           from: core.getInput('from'),
         }
-
+    
         const deployApp = await installer.install()
         core.info('Deploys CLI installed successfully')
         core.info(`Request inputs:${JSON.stringify(inputs)}`)
-        
+    
         const deployHandler = new DeployHandler()
         let cmd = await deployHandler.main(inputs, deployApp)
-
+    
         if (!!cmd) {
           await execCmd(cmd, inputs.type)
         } else {
@@ -5257,21 +5261,21 @@
         core.setFailed(error.message)
       }
     }
-
+    
     async function execCmd(cmd, type) {
       core.info(`Deploying Type : ${type}`)
       let res = await exec.exec(cmd)
-      core.info(`Processing is Successfully`)
+      core.info(`Processing is Successfully : ${res}`)
       return res
     }
-
+    
     class DeployHandler {
       async main(req, deployApp) {
         let cmd = undefined
         switch (req.type) {
           case DeployActionEnum.deploy:
-            let { Env } = await execCmd(this.get(req, deployApp), req.type)
-            cmd = this.deploy(req, Env, deployApp)
+            const { env } = await execCmd(this.get(req, deployApp), DeployActionEnum.get)
+            cmd = this.deploy(req, env, deployApp)
             break
           case DeployActionEnum.delete:
             cmd = this.delete(req, deployApp)
@@ -5282,25 +5286,26 @@
         }
         return cmd
       }
-
-      deploy(req, Env, deployApp) {
-        return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${Env}`
+    
+      deploy(req, env, deployApp) {
+        return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${env}`
       }
-
+    
       get(req, deployApp) {
-        return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name}`
+        return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.name}`
       }
-
+    
       delete(req, deployApp) {
-        return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.from}`
+        return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.from}`
       }
     }
-
+    
     const DeployActionEnum = {
       deploy: 'deploy',
+      get: 'get',
       delete: 'delete',
     }
-
+    
     run()
 
   })();

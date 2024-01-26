@@ -16,7 +16,7 @@ inputs:
     required: true
   image:
     description: Docker Image to deploy
-    required: true
+    required: false
   type:
     description: Deployment Type
     required: true
