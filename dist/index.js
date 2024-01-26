@@ -5229,10 +5229,6 @@
     const core = __nccwpck_require__(186)
     const exec = __nccwpck_require__(514)
     const installer = __nccwpck_require__(127)
-
-    const core = require('@actions/core')
-    const exec = require('@actions/exec')
-    const installer = require('./installer')
     
     async function run() {
       try {
