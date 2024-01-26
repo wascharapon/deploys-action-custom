@@ -20,7 +20,7 @@ inputs:
   type:
     description: Deployment Type
     required: true
-  to:
+  form:
     description: Copy And Deployment to Name
     required: false
 

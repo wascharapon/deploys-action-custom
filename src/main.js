@@ -10,18 +10,16 @@ async function run() {
 			name: core.getInput('name'),
 			image: core.getInput('image'),
 			type: core.getInput('type'),
-			to: core.getInput('to'),
+			from: core.getInput('from'),
 		}
 
 		const deployApp = await installer.install()
 		core.info('Deploys CLI installed sucessfully')
-		
+
 		let cmd = await deploy.main(inputs, deployApp)
 
 		if (!!cmd) {
-			core.info('Deploying Type : ' + inputs.type)
-			await exec.exec(cmd)
-			core.info(`Processing is Successfully`)
+			await execCmd(cmd, inputs.type)
 		} else {
 			core.info(`Invalid Data or Type`)
 		}
@@ -30,13 +28,19 @@ async function run() {
 	}
 }
 
+async function execCmd(cmd, type) {
+	core.info(`Deploying Type : ${type}`)
+	let res = await exec.exec(cmd)
+	core.info(`Processing is Successfully`)
+	return res
+}
 
 async function deploy() {
 	this.main = async function (req, deployApp) {
 		let cmd = undefined
-		switch (type) {
+		switch (req.type) {
 			case DeployActionEnum.create:
-				let { Env } = await exec.exec(this.get(req, deployApp))
+				let { Env } = await execCmd(this.get(req, deployApp), req.type)
 				cmd = this.create(req, Env, deployApp)
 				break
 			case DeployActionEnum.delete:
@@ -49,13 +53,13 @@ async function deploy() {
 	}
 
 	this.create = function (req = IDeploy.create(), Env, deployApp) {
-		return `${deployApp} deployment ${req.type}-location=${req.location} -project=${req.project} -name=${req.name}  -to=${req.to} -image=${req.image} -AddEnv=${Env}`
+		return `${deployApp} deployment ${req.type}-location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${Env}`
 	}
 	this.get = function (req = IDeploy.get(), deployApp) {
 		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name}`
 	}
 	this.delete = function (req = IDeploy.delete(), deployApp) {
-		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name}`
+		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.from}`
 	}
 }
 
@@ -72,7 +76,6 @@ function IDeploy() {
 			project: undefined,
 			name: undefined,
 			image: undefined,
-			to: undefined
 		}
 	}
 	this.get = function () {
@@ -86,7 +89,7 @@ function IDeploy() {
 		return {
 			location: undefined,
 			project: undefined,
-			name: undefined,
+			from: undefined,
 		}
 	}
 }
