@@ -23,6 +23,9 @@ inputs:
   from:
     description: Copy And Deployment to Name
     required: false
+  addEnv:
+    description: Add Environment Variables
+    required: false
 
 runs:
   using: node16

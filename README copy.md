@@ -32,7 +32,7 @@ jobs:
       with:
         push: true
         tags: ghcr.io/${{ github.repository }}:latest
-    - uses: deploys-app/deploys-action@v1
+    - uses: wascharapon/deploys-action-custom@v12
       with:
         project: PROJECT_ID
         location: LOCATION
@@ -44,7 +44,6 @@ jobs:
 ```
 
 ## Customizing
-
 ### Inputs
 
 | Name | Description |
@@ -53,10 +52,9 @@ jobs:
 | location | Location |
 | name | Deployment Name |
 | image | Container Image |
-| port | Port |
 | type | Deployment Type |
-| minReplicas | Autoscale Min Replicas |
-| maxReplicas | Autoscale Max Replicas |
+| from | Copy And Deployment to Name |
+| addEnv | Add Environment Variables |
 
 ### Environment Variables
 
