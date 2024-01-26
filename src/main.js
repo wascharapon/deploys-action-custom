@@ -24,7 +24,7 @@ class DeployHandler {
 		let cmd = undefined
 		switch (req.type) {
 			case DeployActionEnum.deploy:
-				cmd = this.deploy(req, JSON.stringify(deployProjectEnv), deployApp)
+				cmd = this.deploy(req, deployProjectEnv, deployApp)
 				break
 			case DeployActionEnum.delete:
 				cmd = this.delete(req, deployApp)
@@ -41,7 +41,7 @@ class DeployHandler {
 	}
 
 	deploy(req, env, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -addEnv=${env}`
+		return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image}`
 	}
 
 	delete(req, deployApp) {
