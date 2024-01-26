@@ -272,9 +272,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deploys-action@workspace:.":
+"deploys-action-custom@workspace:.":
   version: 0.0.0-use.local
-  resolution: "deploys-action@workspace:."
+  resolution: "deploys-action-custom@workspace:."
   dependencies:
     "@actions/core": ^1.2.7
     "@actions/exec": ^1.0.4
