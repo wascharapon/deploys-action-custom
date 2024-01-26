@@ -1,0 +1,21 @@
+{
+  "name": "deploys-action",
+  "version": "1.0.1",
+  "description": "Deploy docker image to deploys.app",
+  "main": "src/main.js",
+  "repository": "git@github.com:deploys-app/deploys-action.git",
+  "author": "Deploys.app",
+  "license": "MIT",
+  "scripts": {
+    "build": "ncc build"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.7",
+    "@actions/exec": "^1.0.4",
+    "@actions/tool-cache": "^1.6.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.28.5"
+  },
+  "packageManager": "yarn@3.2.1"
+}

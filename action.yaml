@@ -1,0 +1,35 @@
+name: Deploy to Deploys.app
+description: Deploy docker image to deploys.app
+author: Deploys.app
+branding:
+  color: purple
+  icon: cloud
+inputs:
+  project:
+    description: Project ID
+    required: true
+  location:
+    description: Deploy Location ID
+    required: true
+  name:
+    description: Deployment Name
+    required: true
+  image:
+    description: Docker Image to deploy
+    required: true
+  port:
+    description: Deployment Port
+    required: false
+  type:
+    description: Deployment Type
+    required: false
+  minReplicas:
+    description: Minimum Replica
+    required: false
+  maxReplicas:
+    description: Maximum Replica
+    required: false
+
+runs:
+  using: node16
+  main: dist/index.js
