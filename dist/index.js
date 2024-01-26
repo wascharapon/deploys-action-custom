@@ -5269,9 +5269,9 @@
       async main(req, deployApp) {
         let cmd = undefined
         switch (req.type) {
-          case DeployActionEnum.create:
+          case DeployActionEnum.deploy:
             let { Env } = await execCmd(this.get(req, deployApp), req.type)
-            cmd = this.create(req, Env, deployApp)
+            cmd = this.deploy(req, Env, deployApp)
             break
           case DeployActionEnum.delete:
             cmd = this.delete(req, deployApp)
@@ -5283,7 +5283,7 @@
         return cmd
       }
 
-      create(req, Env, deployApp) {
+      deploy(req, Env, deployApp) {
         return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${Env}`
       }
 
@@ -5297,9 +5297,8 @@
     }
 
     const DeployActionEnum = {
-      create: 'create',
+      deploy: 'deploy',
       delete: 'delete',
-      get: 'get',
     }
 
     run()
