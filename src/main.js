@@ -14,9 +14,10 @@ async function run() {
 		}
 
 		const deployApp = await installer.install()
-		core.info('Deploys CLI installed sucessfully')
+		core.info('Deploys CLI installed successfully')
 
-		let cmd = await deploy.main(inputs, deployApp)
+		const deployHandler = new DeployHandler()
+		let cmd = await deployHandler.main(inputs, deployApp)
 
 		if (!!cmd) {
 			await execCmd(cmd, inputs.type)
@@ -35,8 +36,8 @@ async function execCmd(cmd, type) {
 	return res
 }
 
-async function deploy() {
-	this.main = async function (req, deployApp) {
+class DeployHandler {
+	async main(req, deployApp) {
 		let cmd = undefined
 		switch (req.type) {
 			case DeployActionEnum.create:
@@ -46,19 +47,22 @@ async function deploy() {
 			case DeployActionEnum.delete:
 				cmd = this.delete(req, deployApp)
 				break
-			default: cmd = undefined
+			default:
+				cmd = undefined
 				break
 		}
 		return cmd
 	}
 
-	this.create = function (req = IDeploy.create(), Env, deployApp) {
-		return `${deployApp} deployment ${req.type}-location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${Env}`
+	create(req, Env, deployApp) {
+		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${Env}`
 	}
-	this.get = function (req = IDeploy.get(), deployApp) {
+
+	get(req, deployApp) {
 		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name}`
 	}
-	this.delete = function (req = IDeploy.delete(), deployApp) {
+
+	delete(req, deployApp) {
 		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.from}`
 	}
 }
@@ -67,31 +71,6 @@ const DeployActionEnum = {
 	create: 'create',
 	delete: 'delete',
 	get: 'get',
-}
-
-function IDeploy() {
-	this.create = function () {
-		return {
-			location: undefined,
-			project: undefined,
-			name: undefined,
-			image: undefined,
-		}
-	}
-	this.get = function () {
-		return {
-			location: undefined,
-			project: undefined,
-			name: undefined,
-		}
-	}
-	this.delete = function () {
-		return {
-			location: undefined,
-			project: undefined,
-			from: undefined,
-		}
-	}
 }
 
 await run()
