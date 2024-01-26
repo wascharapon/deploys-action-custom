@@ -5247,6 +5247,36 @@
       delete: 'delete',
     }
 
+    class DeployHandler {
+      async main(req, deployApp) {
+        let cmd = undefined
+        switch (req.type) {
+          case DeployActionEnum.deploy:
+            cmd = this.deploy(req, JSON.stringify(deployProjectEnv), deployApp)
+            break
+          case DeployActionEnum.delete:
+            cmd = this.delete(req, deployApp)
+            break
+          default:
+            cmd = undefined
+            break
+        }
+        return cmd
+      }
+
+      get(req, deployApp) {
+        return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.from}`
+      }
+
+      deploy(req, env, deployApp) {
+        return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -addEnv=${env}`
+      }
+
+      delete(req, deployApp) {
+        return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.name}`
+      }
+    }
+
     async function run() {
       try {
         const inputs = {
@@ -5279,36 +5309,6 @@
       core.info(`Deploying Type : ${type}`)
       await exec.exec(cmd)
       core.info(`Processing is Successfully : ${type}`)
-    }
-
-    class DeployHandler {
-      async main(req, deployApp) {
-        let cmd = undefined
-        switch (req.type) {
-          case DeployActionEnum.deploy:
-            cmd = this.deploy(req, deployProjectEnv, deployApp)
-            break
-          case DeployActionEnum.delete:
-            cmd = this.delete(req, deployApp)
-            break
-          default:
-            cmd = undefined
-            break
-        }
-        return cmd
-      }
-
-      get(req, deployApp) {
-        return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.from}`
-      }
-
-      deploy(req, env, deployApp) {
-        return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -addEnv=${env}`
-      }
-
-      delete(req, deployApp) {
-        return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.name}`
-      }
     }
 
     run()
