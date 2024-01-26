@@ -5229,7 +5229,7 @@
     const core = __nccwpck_require__(186)
     const exec = __nccwpck_require__(514)
     const installer = __nccwpck_require__(127)
-    
+
     async function run() {
       try {
         const inputs = {
@@ -5240,14 +5240,14 @@
           type: core.getInput('type'),
           from: core.getInput('from'),
         }
-    
+
         const deployApp = await installer.install()
         core.info('Deploys CLI installed successfully')
         core.info(`Request inputs:${JSON.stringify(inputs)}`)
-    
+
         const deployHandler = new DeployHandler()
         let cmd = await deployHandler.main(inputs, deployApp)
-    
+
         if (!!cmd) {
           await execCmd(cmd, inputs.type)
         } else {
@@ -5257,14 +5257,14 @@
         core.setFailed(error.message)
       }
     }
-    
+
     async function execCmd(cmd, type) {
       core.info(`Deploying Type : ${type}`)
       let res = await exec.exec(cmd)
       core.info(`Processing is Successfully : ${res}`)
       return res
     }
-    
+
     class DeployHandler {
       async main(req, deployApp) {
         let cmd = undefined
@@ -5282,26 +5282,26 @@
         }
         return cmd
       }
-    
+
       deploy(req, env, deployApp) {
         return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${env}`
       }
-    
+
       get(req, deployApp) {
-        return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.name}`
+        return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.from}`
       }
-    
+
       delete(req, deployApp) {
-        return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.from}`
+        return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.name}`
       }
     }
-    
+
     const DeployActionEnum = {
       deploy: 'deploy',
       get: 'get',
       delete: 'delete',
     }
-    
+
     run()
 
   })();

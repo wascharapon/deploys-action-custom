@@ -60,11 +60,11 @@ class DeployHandler {
 	}
 
 	get(req, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.name}`
+		return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.from}`
 	}
 
 	delete(req, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.from}`
+		return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.name}`
 	}
 }
 
