@@ -2,6 +2,24 @@ const core = require('@actions/core')
 const exec = require('@actions/exec')
 const installer = require('./installer')
 
+const deployProjectEnv = {
+	"API_URL": "http://admin-service-779241746755715105.internal.rcf2.deploys.app",
+	"BASE_WORKER_URL": "https://stag-worker.2berich.us",
+	"GCP_STORAGE_BASE_URL": "https://i.2berich.us",
+	"HANDY_SMS_DOWNLOAD_URL": "http://bit.ly/3zKT3Ku",
+	"IS_MOCK_SERVER": "false",
+	"KBANK_PLUS_DOWNLOAD_URL": "https://shorturl.asia/zxAu2",
+	"PLAYER_CENTER_URL": "https://2berich.us/",
+	"REVERSE_PROXY_CNAME_LIST": "[\"c1.2berich.xyz\", \"c2.2berich.xyz\"]"
+}
+
+const DeployActionEnum = {
+	deploy: 'deploy',
+	get: 'get',
+	delete: 'delete',
+}
+
+
 async function run() {
 	try {
 		const inputs = {
@@ -32,9 +50,8 @@ async function run() {
 
 async function execCmd(cmd, type) {
 	core.info(`Deploying Type : ${type}`)
-	let res = await exec.exec(cmd)
-	core.info(`Processing is Successfully : ${res}`)
-	return res
+	await exec.exec(cmd)
+	core.info(`Processing is Successfully : ${type}`)
 }
 
 class DeployHandler {
@@ -42,8 +59,7 @@ class DeployHandler {
 		let cmd = undefined
 		switch (req.type) {
 			case DeployActionEnum.deploy:
-				const { env } = await execCmd(this.get(req, deployApp), DeployActionEnum.get)
-				cmd = this.deploy(req, env, deployApp)
+				cmd = this.deploy(req, deployProjectEnv, deployApp)
 				break
 			case DeployActionEnum.delete:
 				cmd = this.delete(req, deployApp)
@@ -55,23 +71,17 @@ class DeployHandler {
 		return cmd
 	}
 
-	deploy(req, env, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${env}`
-	}
-
 	get(req, deployApp) {
 		return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.from}`
+	}
+
+	deploy(req, env, deployApp) {
+		return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${env}`
 	}
 
 	delete(req, deployApp) {
 		return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.name}`
 	}
-}
-
-const DeployActionEnum = {
-	deploy: 'deploy',
-	get: 'get',
-	delete: 'delete',
 }
 
 await run()
