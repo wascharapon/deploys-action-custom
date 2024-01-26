@@ -5303,7 +5303,7 @@
       }
 
       deploy(req, env, deployApp) {
-        return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -AddEnv=${env}`
+        return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image} -addEnv=${env}`
       }
 
       delete(req, deployApp) {
