@@ -1,8 +1,8 @@
-name: Deploy to Deploys.app
-description: Deploy docker image to deploys.app
-author: Deploys.app
+name: Deploy to Deploys.app Custom
+description: Deploy docker image to deploys.app Custom
+author: DeploysCustom.app
 branding:
-  color: purple
+  color: green
   icon: cloud
 inputs:
   project:
