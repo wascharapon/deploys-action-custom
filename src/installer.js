@@ -8,7 +8,7 @@ const osArch = os.arch()
 
 const version = '1.0.1'
 
-export async function install () {
+export async function install() {
 	const downloadUrl = `https://github.com/deploys-app/deploys/releases/download/v${version}/${getFilename(version)}`
 	core.info(`Downloading ${downloadUrl}...`)
 	const downloadedPath = await tc.downloadTool(downloadUrl)
@@ -23,11 +23,11 @@ export async function install () {
 
 	const exePath = path.join(cachePath, 'deploys')
 	core.debug(`Exe path is ${exePath}`)
-
+	core.debug(`Test version : 2`)
 	return exePath
 }
 
-function getFilename (version) {
+function getFilename(version) {
 	const platform = 'linux'
 	const arch = 'amd64'
 	const ext = 'tar.gz'
