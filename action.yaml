@@ -1,5 +1,5 @@
-name: Deploy to Deploys.app Custom
-description: Deploy docker image to deploys.app Custom
+name: Deploy to DeploysCustom.app 
+description: Deploy docker image to deploysCustom.app 
 author: DeploysCustom.app
 branding:
   color: green
