@@ -2,7 +2,7 @@ name: Deploy to DeploysCustom.app
 description: Deploy docker image to deploysCustom.app
 author: DeploysCustom.app
 branding:
-  color: red
+  color: yellow
   icon: cloud
 inputs:
   project:
