@@ -32,7 +32,7 @@ jobs:
       with:
         push: true
         tags: ghcr.io/${{ github.repository }}:latest
-    - uses: wascharapon/deploys-action-custom@v2
+    - uses: deploys-app/deploys-action@v1
       with:
         project: PROJECT_ID
         location: LOCATION
