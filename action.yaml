@@ -1,5 +1,5 @@
-name: Deploy to DeploysCustom.app 
-description: Deploy docker image to deploysCustom.app 
+name: Deploy to DeploysCustom.app
+description: Deploy docker image to deploysCustom.app
 author: DeploysCustom.app
 branding:
   color: green
@@ -12,22 +12,16 @@ inputs:
     description: Deploy Location ID
     required: true
   name:
-    description: Deployment Name
+    description: Deployment Name or Master Project Name
     required: true
   image:
     description: Docker Image to deploy
     required: true
-  port:
-    description: Deployment Port
-    required: false
   type:
     description: Deployment Type
-    required: false
-  minReplicas:
-    description: Minimum Replica
-    required: false
-  maxReplicas:
-    description: Maximum Replica
+    required: true
+  to:
+    description: Copy And Deployment to Name
     required: false
 
 runs:

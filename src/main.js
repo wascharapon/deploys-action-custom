@@ -2,38 +2,93 @@ const core = require('@actions/core')
 const exec = require('@actions/exec')
 const installer = require('./installer')
 
-async function run () {
+async function run() {
 	try {
 		const inputs = {
 			project: core.getInput('project'),
 			location: core.getInput('location'),
 			name: core.getInput('name'),
 			image: core.getInput('image'),
-			port: core.getInput('port'),
 			type: core.getInput('type'),
-			minReplicas: core.getInput('minReplicas'),
-			maxReplicas: core.getInput('maxReplicas')
+			to: core.getInput('to'),
 		}
 
-		const deploys = await installer.install()
+		const deployApp = await installer.install()
 		core.info('Deploys CLI installed sucessfully')
+		
+		let cmd = await deploy.main(inputs, deployApp)
 
-		core.info('Deploying...')
-
-		let cmd = `${deploys} deployment deploy`
-		cmd += ` -location=${inputs.location}`
-		cmd += ` -project=${inputs.project}`
-		cmd += ` -name=${inputs.name}`
-		cmd += ` -image=${inputs.image}`
-		if (!!inputs.port) cmd += ` -port=${port}`
-		if (!!inputs.type) cmd += ` -type=${type}`
-		if (!!inputs.minReplicas) cmd += ` -minReplicas=${inputs.minReplicas}`
-		if (!!inputs.maxReplicas) cmd += ` -maxReplicas=${inputs.maxReplicas}`
-
-		await exec.exec(cmd)
+		if (!!cmd) {
+			core.info('Deploying Type : ' + inputs.type)
+			await exec.exec(cmd)
+			core.info(`Processing is Successfully`)
+		} else {
+			core.info(`Invalid Data or Type`)
+		}
 	} catch (error) {
 		core.setFailed(error.message)
 	}
 }
 
-run()
+
+async function deploy() {
+	this.main = async function (req, deployApp) {
+		let cmd = undefined
+		switch (type) {
+			case DeployActionEnum.create:
+				let { Env } = await exec.exec(this.get(req, deployApp))
+				cmd = this.create(req, Env, deployApp)
+				break
+			case DeployActionEnum.delete:
+				cmd = this.delete(req, deployApp)
+				break
+			default: cmd = undefined
+				break
+		}
+		return cmd
+	}
+
+	this.create = function (req = IDeploy.create(), Env, deployApp) {
+		return `${deployApp} deployment ${req.type}-location=${req.location} -project=${req.project} -name=${req.name}  -to=${req.to} -image=${req.image} -AddEnv=${Env}`
+	}
+	this.get = function (req = IDeploy.get(), deployApp) {
+		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name}`
+	}
+	this.delete = function (req = IDeploy.delete(), deployApp) {
+		return `${deployApp} deployment ${req.type} -location=${req.location} -project=${req.project} -name=${req.name}`
+	}
+}
+
+const DeployActionEnum = {
+	create: 'create',
+	delete: 'delete',
+	get: 'get',
+}
+
+function IDeploy() {
+	this.create = function () {
+		return {
+			location: undefined,
+			project: undefined,
+			name: undefined,
+			image: undefined,
+			to: undefined
+		}
+	}
+	this.get = function () {
+		return {
+			location: undefined,
+			project: undefined,
+			name: undefined,
+		}
+	}
+	this.delete = function () {
+		return {
+			location: undefined,
+			project: undefined,
+			name: undefined,
+		}
+	}
+}
+
+await run()
