@@ -73,13 +73,13 @@ async function axios(config, functionName) {
 }
 
 class DeployHandler {
-	async main(req, deployApp) {
+	async main(req) {
 		switch (req.type) {
 			case DeployActionEnum.deploy:
 				this.deploy(req)
 				break
 			case DeployActionEnum.delete:
-				this.delete(req, deployApp)
+				this.delete(req)
 				break
 		}
 	}
@@ -169,7 +169,7 @@ async function run() {
 		core.info('Started API Deploys')
 		core.info(`Request inputs:${JSON.stringify(inputs)}`)
 		const deployHandler = new DeployHandler()
-		const res = await deployHandler.main(inputs, deployApp)
+		const res = await deployHandler.main(inputs)
 		if (res) {
 			core.info(`Deploy is success`)
 		} else {
