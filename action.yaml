@@ -26,9 +26,11 @@ inputs:
   minReplicas:
     description: Minimum Replicas
     required: false
+    default: "1"
   maxReplicas:
     description: Maximum Replicas
     required: false
+    default: "1"
 
 runs:
   using: node16
