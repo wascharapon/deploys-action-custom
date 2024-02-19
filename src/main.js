@@ -102,38 +102,57 @@ class DeployHandler {
 			}
 		}
 
-		const resGet = await axios(axiosConfigDeployApp, 'Step 1 Get Env Form Project')
-		
-		if (resGet) {
-			core.info(`Info ENV ${resGet.result.env}`)
-			axiosConfigDeployApp = {
-				...axiosConfigDeployApp,
-				...{
-					url: API_DEPLOY_APP + '.deploy',
-					method: 'post',
-					data: JSON.stringify({
-						...masterDeployAppBodyRequest,
-						...{
-							project: req.project,
-							location: req.location,
-							name: req.name,
-							image: req.image,
-							minReplicas: Number(req.minReplicas) || 1,
-							maxReplicas: Number(req.maxReplicas) || 1,
-							env: resGet.result.env
-						}
-					})
-				}
-			}
-			const resDeploy = await axios(axiosConfigDeployApp, 'Step 2 Deploy Project')
-			if (resDeploy) {
-				return true
-			} else {
-				return false
-			}
-		} else {
+		const resGet = await axios(axiosConfigDeployApp, 'Step 1 Get Env Master Project')
+		if (!resGet) {
 			return false
 		}
+
+		core.info(`Info ENV ${resGet.result.env}`)
+		axiosConfigDeployApp = {
+			...axiosConfigDeployApp,
+			...{
+				url: API_DEPLOY_APP + '.deploy',
+				method: 'post',
+				data: JSON.stringify({
+					...masterDeployAppBodyRequest,
+					...{
+						project: req.project,
+						location: req.location,
+						name: req.name,
+						image: req.image,
+						minReplicas: Number(req.minReplicas) || 1,
+						maxReplicas: Number(req.maxReplicas) || 1,
+						env: resGet.result.env
+					}
+				})
+			}
+		}
+
+		const resDeploy = await axios(axiosConfigDeployApp, 'Step 2 Deploy Project')
+		if (!resDeploy) {
+			return false
+		}
+
+		axiosConfigDeployApp = {
+			...axiosConfigDeployApp,
+			...{
+				url: API_DEPLOY_APP + '.get',
+				method: 'post',
+				data: JSON.stringify({
+					project: req.project,
+					location: req.location,
+					name: req.name
+				})
+			}
+		}
+
+		const resGetUrl = await axios(axiosConfigDeployApp, 'Step 3 Get URL Project')
+		core.info(`URL ${resGetUrl.result.url}`)
+		if (!resGetUrl) {
+			return false
+		}
+
+		return true
 	}
 
 	async delete(req) {
@@ -149,12 +168,13 @@ class DeployHandler {
 				})
 			}
 		}
+
 		const res = await axios(axiosConfigDeployApp, 'Delete Form Project')
-		if (res) {
-			return true
-		} else {
+		if (!res) {
 			return false
 		}
+
+		return true
 	}
 }
 
