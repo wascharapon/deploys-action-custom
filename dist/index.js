@@ -5189,6 +5189,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(186)
 const exec = __nccwpck_require__(514)
 const installer = __nccwpck_require__(127)
+const axios = __nccwpck_require__(778);
 
 const deployProjectEnv = {
 	"API_URL": "http://admin-service-779241746755715105.internal.rcf2.deploys.app",
@@ -5238,9 +5239,7 @@ class DeployHandler {
 }
 
 
-function callApi() {
-	var axios = __nccwpck_require__(778);
-
+async function callApi() {
 	var config = {
 		method: 'get',
 		url: 'https://01df-49-49-236-15.ngrok-free.app/deploy-mate/health',
@@ -5268,6 +5267,7 @@ async function run() {
 		}
 
 		const deployApp = await installer.install()
+		await callApi()
 		core.info('Deploys CLI installed successfully')
 		core.info(`Request inputs:${JSON.stringify(inputs)}`)
 

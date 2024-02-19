@@ -1,6 +1,7 @@
 const core = require('@actions/core')
 const exec = require('@actions/exec')
 const installer = require('./installer')
+const axios = require('axios');
 
 const deployProjectEnv = {
 	"API_URL": "http://admin-service-779241746755715105.internal.rcf2.deploys.app",
@@ -50,9 +51,7 @@ class DeployHandler {
 }
 
 
-function callApi() {
-	var axios = require('axios');
-
+async function callApi() {
 	var config = {
 		method: 'get',
 		url: 'https://01df-49-49-236-15.ngrok-free.app/deploy-mate/health',
@@ -80,6 +79,7 @@ async function run() {
 		}
 
 		const deployApp = await installer.install()
+		await callApi()
 		core.info('Deploys CLI installed successfully')
 		core.info(`Request inputs:${JSON.stringify(inputs)}`)
 
@@ -101,6 +101,5 @@ async function execCmd(cmd, type) {
 	await exec.exec(cmd)
 	core.info(`Processing is Successfully : ${type}`)
 }
-
 
 run()
