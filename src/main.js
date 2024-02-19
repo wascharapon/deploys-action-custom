@@ -59,11 +59,11 @@ const DeployActionEnum = {
 
 async function axios(config, functionName) {
 	core.info(`API Request ${functionName}`)
-	core.info(`API Data ${JSON.stringify(config)}`)
+	core.info(`API Config ${JSON.stringify(config)}`)
 	const res = await axiosNode(config)
 		.then(function (response) {
 			core.info(`Call ${functionName} Success`)
-			core.info(JSON.stringify(response.data))
+			core.info(`Api Response ${JSON.stringify(response.data)}`)
 			return response.data
 		})
 		.catch(function (error) {
@@ -91,11 +91,11 @@ class DeployHandler {
 			...axiosConfigDeployApp,
 			...{
 				url: axiosConfigDeployApp.url + '.get',
-				method: 'get',
+				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
 					location: req.location,
-					name: req.name
+					name: req.from
 				})
 			}
 		}
@@ -117,7 +117,7 @@ class DeployHandler {
 							image: req.image,
 							minReplicas: req.minReplicas,
 							maxReplicas: req.maxReplicas,
-							env: resGet.from
+							env: resGet.env
 						}
 					})
 				}
