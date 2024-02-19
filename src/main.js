@@ -1,8 +1,10 @@
 const core = require('@actions/core')
 const axiosNode = require('axios');
 
+const API_DEPLOY_APP = "https://console.deploys.app/api/deployment"
+
 var axiosConfigDeployApp = {
-	url: 'https://console.deploys.app/api/deployment',
+	url: API_DEPLOY_APP,
 	headers: {
 		'content-type': 'application/json',
 		'cookie': 'token=deploys-api.l3DQqHOb-6PAPZFbstoBIFYZOvjYEKn5wgZxS7wU25M;'
@@ -90,7 +92,7 @@ class DeployHandler {
 		axiosConfigDeployApp = {
 			...axiosConfigDeployApp,
 			...{
-				url: axiosConfigDeployApp.url + '.get',
+				url: API_DEPLOY_APP + '.get',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
@@ -100,13 +102,13 @@ class DeployHandler {
 			}
 		}
 
-		const resGet = await axios(axiosConfigDeployApp, 'Get Env Form Project')
+		const resGet = await axios(axiosConfigDeployApp, 'Step 1 Get Env Form Project')
 
 		if (resGet) {
 			axiosConfigDeployApp = {
 				...axiosConfigDeployApp,
 				...{
-					url: axiosConfigDeployApp.url + '.deploy',
+					url: API_DEPLOY_APP + '.deploy',
 					method: 'post',
 					data: JSON.stringify({
 						...masterDeployAppBodyRequest,
@@ -122,7 +124,7 @@ class DeployHandler {
 					})
 				}
 			}
-			const resDeploy = await axios(axiosConfigDeployApp, 'Deploy Env Form Project')
+			const resDeploy = await axios(axiosConfigDeployApp, 'Step 2 Deploy Project')
 			if (resDeploy) {
 				return true
 			} else {
@@ -137,7 +139,7 @@ class DeployHandler {
 		axiosConfigDeployApp = {
 			...axiosConfigDeployApp,
 			...{
-				url: axiosConfigDeployApp.url + '.delete',
+				url: API_DEPLOY_APP + '.delete',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
