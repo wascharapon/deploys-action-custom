@@ -8354,8 +8354,9 @@ class DeployHandler {
 		}
 
 		const resGet = await axios(axiosConfigDeployApp, 'Step 1 Get Env Form Project')
-
+		
 		if (resGet) {
+			core.info(`Info ENV ${resGet['env']}`)
 			axiosConfigDeployApp = {
 				...axiosConfigDeployApp,
 				...{
@@ -8368,9 +8369,9 @@ class DeployHandler {
 							location: req.location,
 							name: req.name,
 							image: req.image,
-							minReplicas: Number(req.minReplicas),
-							maxReplicas: Number(req.maxReplicas),
-							env: resGet.env
+							minReplicas: Number(req.minReplicas) || 1,
+							maxReplicas: Number(req.maxReplicas) || 1,
+							env: resGet['env']
 						}
 					})
 				}
