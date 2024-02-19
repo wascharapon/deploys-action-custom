@@ -59,6 +59,7 @@ const DeployActionEnum = {
 
 async function axios(config, functionName) {
 	core.info(`API Request ${functionName}`)
+	core.info(`API Data ${JSON.stringify(config)}`)
 	axiosNode(config)
 		.then(function (response) {
 			core.info(`Call ${functionName} Success`)
@@ -66,7 +67,7 @@ async function axios(config, functionName) {
 			return response.data
 		})
 		.catch(function (error) {
-			core.info(`Call ${functionName} Found`)
+			core.info(`Call ${functionName} Not Success`)
 			core.info(JSON.stringify(error))
 			return error
 		});
@@ -88,7 +89,7 @@ class DeployHandler {
 		axiosConfig = {
 			...axiosConfig,
 			...{
-				url: axiosConfig.url + '/get',
+				url: axiosConfig.url + '.get',
 				method: 'get',
 				data: JSON.stringify({
 					project: req.project,
@@ -101,11 +102,10 @@ class DeployHandler {
 		const resGet = await axios(axiosConfig, 'Get Env Form Project')
 
 		if (resGet.ok) {
-			core.info('Get Env Form Project Success')
 			axiosConfig = {
 				...axiosConfig,
 				...{
-					url: axiosConfig.url + '/deploy',
+					url: axiosConfig.url + '.deploy',
 					method: 'post',
 					data: JSON.stringify({
 						...masterDeployAppBodyRequest,
@@ -136,7 +136,7 @@ class DeployHandler {
 		axiosConfig = {
 			...axiosConfig,
 			...{
-				url: axiosConfig.url + '/delete',
+				url: axiosConfig.url + '.delete',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
