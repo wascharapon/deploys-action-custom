@@ -29,7 +29,7 @@ const masterDeployAppBodyRequest = {
 		"subPath": ""
 	},
 	"minReplicas": 1,
-	"maxReplicas": 4,
+	"maxReplicas": 1,
 	"resources": {
 		"requests": {
 			"memory": "0"
