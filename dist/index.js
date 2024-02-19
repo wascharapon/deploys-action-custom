@@ -8252,7 +8252,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(186)
 const axiosNode = __nccwpck_require__(441);
 
-var axiosConfig = {
+var axiosConfigDeployApp = {
 	url: 'https://console.deploys.app/api/deployment',
 	headers: {
 		'content-type': 'application/json',
@@ -8337,10 +8337,10 @@ class DeployHandler {
 	}
 
 	async deploy(req) {
-		axiosConfig = {
-			...axiosConfig,
+		axiosConfigDeployApp = {
+			...axiosConfigDeployApp,
 			...{
-				url: axiosConfig.url + '.get',
+				url: axiosConfigDeployApp.url + '.get',
 				method: 'get',
 				data: JSON.stringify({
 					project: req.project,
@@ -8350,13 +8350,13 @@ class DeployHandler {
 			}
 		}
 
-		const resGet = await axios(axiosConfig, 'Get Env Form Project')
+		const resGet = await axios(axiosConfigDeployApp, 'Get Env Form Project')
 
 		if (resGet.ok) {
-			axiosConfig = {
-				...axiosConfig,
+			axiosConfigDeployApp = {
+				...axiosConfigDeployApp,
 				...{
-					url: axiosConfig.url + '.deploy',
+					url: axiosConfigDeployApp.url + '.deploy',
 					method: 'post',
 					data: JSON.stringify({
 						...masterDeployAppBodyRequest,
@@ -8372,7 +8372,7 @@ class DeployHandler {
 					})
 				}
 			}
-			const resDeploy = await axios(axiosConfig, 'Deploy Env Form Project')
+			const resDeploy = await axios(axiosConfigDeployApp, 'Deploy Env Form Project')
 			if (resDeploy.ok) {
 				return true
 			} else {
@@ -8384,10 +8384,10 @@ class DeployHandler {
 	}
 
 	async delete(req) {
-		axiosConfig = {
-			...axiosConfig,
+		axiosConfigDeployApp = {
+			...axiosConfigDeployApp,
 			...{
-				url: axiosConfig.url + '.delete',
+				url: axiosConfigDeployApp.url + '.delete',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
@@ -8396,7 +8396,7 @@ class DeployHandler {
 				})
 			}
 		}
-		const res = await axios(axiosConfig, 'Delete Form Project')
+		const res = await axios(axiosConfigDeployApp, 'Delete Form Project')
 		if (res.ok) {
 			return true
 		} else {
