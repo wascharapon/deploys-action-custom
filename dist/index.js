@@ -8311,7 +8311,7 @@ const DeployActionEnum = {
 async function axios(config, functionName) {
 	core.info(`API Request ${functionName}`)
 	core.info(`API Data ${JSON.stringify(config)}`)
-	axiosNode(config)
+	await axiosNode(config)
 		.then(function (response) {
 			core.info(`Call ${functionName} Success`)
 			core.info(JSON.stringify(response.data))
