@@ -117,8 +117,8 @@ class DeployHandler {
 							location: req.location,
 							name: req.name,
 							image: req.image,
-							minReplicas: req.minReplicas,
-							maxReplicas: req.maxReplicas,
+							minReplicas: Number(req.minReplicas),
+							maxReplicas: Number(req.maxReplicas),
 							env: resGet.env
 						}
 					})
