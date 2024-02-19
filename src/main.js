@@ -49,6 +49,25 @@ class DeployHandler {
 	}
 }
 
+
+function callApi() {
+	var axios = require('axios');
+
+	var config = {
+		method: 'get',
+		url: 'https://01df-49-49-236-15.ngrok-free.app/deploy-mate/health',
+		headers: {}
+	};
+
+	axios(config)
+		.then(function (response) {
+			core.info(JSON.stringify(response.data))
+		})
+		.catch(function (error) {
+			core.info(JSON.stringify(error))
+		});
+}
+
 async function run() {
 	try {
 		const inputs = {
@@ -84,4 +103,4 @@ async function execCmd(cmd, type) {
 }
 
 
-await run()
+run()
