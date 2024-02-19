@@ -98,7 +98,7 @@ class DeployHandler {
 			}
 		}
 
-		resGet = await axios(axiosConfig, 'Get Env Form Project')
+		const resGet = await axios(axiosConfig, 'Get Env Form Project')
 
 		if (resGet.ok) {
 			core.info('Get Env Form Project Success')
@@ -121,7 +121,7 @@ class DeployHandler {
 					})
 				}
 			}
-			resDeploy = await axios(axiosConfig, 'Deploy Env Form Project')
+			const resDeploy = await axios(axiosConfig, 'Deploy Env Form Project')
 			if (resDeploy.ok) {
 				return true
 			} else {
@@ -145,7 +145,7 @@ class DeployHandler {
 				})
 			}
 		}
-		res = await axios(axiosConfig, 'Delete Form Project')
+		const res = await axios(axiosConfig, 'Delete Form Project')
 		if (res.ok) {
 			return true
 		} else {
