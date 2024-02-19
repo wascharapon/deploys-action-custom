@@ -23,8 +23,11 @@ inputs:
   from:
     description: Copy And Deployment to Name
     required: false
-  addEnv:
-    description: Add Environment Variables
+  minReplicas:
+    description: Minimum Replicas
+    required: false
+  maxReplicas:
+    description: Maximum Replicas
     required: false
 
 runs:

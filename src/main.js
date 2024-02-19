@@ -1,70 +1,157 @@
 const core = require('@actions/core')
-const exec = require('@actions/exec')
-const installer = require('./installer')
-const axios = require('axios');
+const axiosNode = require('axios');
 
-const deployProjectEnv = {
-	"API_URL": "http://admin-service-779241746755715105.internal.rcf2.deploys.app",
-	"BASE_WORKER_URL": "https://stag-worker.2berich.us",
-	"GCP_STORAGE_BASE_URL": "https://i.2berich.us",
-	"HANDY_SMS_DOWNLOAD_URL": "http://bit.ly/3zKT3Ku",
-	"IS_MOCK_SERVER": "false",
-	"KBANK_PLUS_DOWNLOAD_URL": "https://shorturl.asia/zxAu2",
-	"PLAYER_CENTER_URL": "https://2berich.us/",
-	"REVERSE_PROXY_CNAME_LIST": "[\"c1.2berich.xyz\", \"c2.2berich.xyz\"]"
+var axiosConfig = {
+	url: 'https://console.deploys.app/api/deployment',
+	headers: {
+		'content-type': 'application/json',
+		'cookie': 'token=deploys-api.l3DQqHOb-6PAPZFbstoBIFYZOvjYEKn5wgZxS7wU25M;'
+	},
+};
+
+const masterDeployAppBodyRequest = {
+	"project": "",
+	"location": "",
+	"name": "",
+	"type": "WebService",
+	"image": "",
+	"pullSecret": "",
+	"workloadIdentity": "",
+	"port": 8080,
+	"protocol": "http",
+	"internal": false,
+	"command": [],
+	"args": [],
+	"schedule": "",
+	"disk": {
+		"name": "",
+		"mountPath": "",
+		"subPath": ""
+	},
+	"minReplicas": 1,
+	"maxReplicas": 4,
+	"resources": {
+		"requests": {
+			"memory": "0"
+		},
+		"limits": {
+			"memory": ""
+		}
+	},
+	"env": {
+	},
+	"mountData": {},
+	"sidecar": {
+		"type": "",
+		"cloudSqlProxy": {
+			"instance": "",
+			"port": null,
+			"credentials": ""
+		}
+	},
+	"sidecars": []
 }
 
 const DeployActionEnum = {
 	deploy: 'deploy',
-	get: 'get',
 	delete: 'delete',
+}
+
+async function axios(config, functionName) {
+	core.info(`API Request ${functionName}`)
+	axiosNode(config)
+		.then(function (response) {
+			core.info(`Call ${functionName} Success`)
+			core.info(JSON.stringify(response.data))
+			return response.data
+		})
+		.catch(function (error) {
+			core.info(`Call ${functionName} Found`)
+			core.info(JSON.stringify(error))
+			return error
+		});
 }
 
 class DeployHandler {
 	async main(req, deployApp) {
-		let cmd = undefined
 		switch (req.type) {
 			case DeployActionEnum.deploy:
-				cmd = this.deploy(req, deployProjectEnv, deployApp)
+				this.deploy(req)
 				break
 			case DeployActionEnum.delete:
-				cmd = this.delete(req, deployApp)
-				break
-			default:
-				cmd = undefined
+				this.delete(req, deployApp)
 				break
 		}
-		return cmd
 	}
 
-	get(req, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.get} -location=${req.location} -project=${req.project} -name=${req.from}`
+	async deploy(req) {
+		axiosConfig = {
+			...axiosConfig,
+			...{
+				url: axiosConfig.url + '/get',
+				method: 'get',
+				data: JSON.stringify({
+					project: req.project,
+					location: req.location,
+					name: req.name
+				})
+			}
+		}
+
+		resGet = await axios(axiosConfig, 'Get Env Form Project')
+
+		if (resGet.ok) {
+			core.info('Get Env Form Project Success')
+			axiosConfig = {
+				...axiosConfig,
+				...{
+					url: axiosConfig.url + '/deploy',
+					method: 'post',
+					data: JSON.stringify({
+						...masterDeployAppBodyRequest,
+						...{
+							project: req.project,
+							location: req.location,
+							name: req.name,
+							image: req.image,
+							minReplicas: req.minReplicas,
+							maxReplicas: req.maxReplicas,
+							env: req.from
+						}
+					})
+				}
+			}
+			resDeploy = await axios(axiosConfig, 'Deploy Env Form Project')
+			if (resDeploy.ok) {
+				return true
+			} else {
+				return false
+			}
+		} else {
+			return false
+		}
 	}
 
-	deploy(req, env, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.deploy} -location=${req.location} -project=${req.project} -name=${req.name} -image=${req.image}`
+	async delete(req) {
+		axiosConfig = {
+			...axiosConfig,
+			...{
+				url: axiosConfig.url + '/delete',
+				method: 'post',
+				data: JSON.stringify({
+					project: req.project,
+					location: req.location,
+					name: req.name
+				})
+			}
+		}
+		res = await axios(axiosConfig, 'Delete Form Project')
+		if (res.ok) {
+			return true
+		} else {
+			return false
+		}
 	}
-
-	delete(req, deployApp) {
-		return `${deployApp} deployment ${DeployActionEnum.delete} -location=${req.location} -project=${req.project} -name=${req.name}`
-	}
-}
-
-
-async function callApi() {
-	var config = {
-		method: 'get',
-		url: 'https://01df-49-49-236-15.ngrok-free.app/deploy-mate/health',
-		headers: {}
-	};
-
-	axios(config)
-		.then(function (response) {
-			core.info(JSON.stringify(response.data))
-		})
-		.catch(function (error) {
-			core.info(JSON.stringify(error))
-		});
 }
 
 async function run() {
@@ -76,30 +163,21 @@ async function run() {
 			image: core.getInput('image'),
 			type: core.getInput('type'),
 			from: core.getInput('from'),
+			minReplicas: core.getInput('minReplicas'),
+			maxReplicas: core.getInput('maxReplicas'),
 		}
-
-		const deployApp = await installer.install()
-		await callApi()
-		core.info('Deploys CLI installed successfully')
+		core.info('Started API Deploys')
 		core.info(`Request inputs:${JSON.stringify(inputs)}`)
-
 		const deployHandler = new DeployHandler()
-		let cmd = await deployHandler.main(inputs, deployApp)
-
-		if (!!cmd) {
-			await execCmd(cmd, inputs.type)
+		const res = await deployHandler.main(inputs, deployApp)
+		if (res) {
+			core.info(`Deploy is success`)
 		} else {
-			core.info(`Invalid Data or Type`)
+			core.info(`Deploy is not success`)
 		}
 	} catch (error) {
 		core.setFailed(error.message)
 	}
-}
-
-async function execCmd(cmd, type) {
-	core.info(`Deploying Type : ${type}`)
-	await exec.exec(cmd)
-	core.info(`Processing is Successfully : ${type}`)
 }
 
 run()
