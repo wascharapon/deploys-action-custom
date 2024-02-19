@@ -8311,7 +8311,7 @@ const DeployActionEnum = {
 async function axios(config, functionName) {
 	core.info(`API Request ${functionName}`)
 	core.info(`API Data ${JSON.stringify(config)}`)
-	await axiosNode(config)
+	const res = await axiosNode(config)
 		.then(function (response) {
 			core.info(`Call ${functionName} Success`)
 			core.info(JSON.stringify(response.data))
@@ -8320,8 +8320,9 @@ async function axios(config, functionName) {
 		.catch(function (error) {
 			core.info(`Call ${functionName} Not Success`)
 			core.info(JSON.stringify(error))
-			return error
+			return null
 		});
+	return res
 }
 
 class DeployHandler {
@@ -8352,7 +8353,7 @@ class DeployHandler {
 
 		const resGet = await axios(axiosConfigDeployApp, 'Get Env Form Project')
 
-		if (resGet.ok) {
+		if (resGet) {
 			axiosConfigDeployApp = {
 				...axiosConfigDeployApp,
 				...{
@@ -8373,7 +8374,7 @@ class DeployHandler {
 				}
 			}
 			const resDeploy = await axios(axiosConfigDeployApp, 'Deploy Env Form Project')
-			if (resDeploy.ok) {
+			if (resDeploy) {
 				return true
 			} else {
 				return false
@@ -8397,7 +8398,7 @@ class DeployHandler {
 			}
 		}
 		const res = await axios(axiosConfigDeployApp, 'Delete Form Project')
-		if (res.ok) {
+		if (res) {
 			return true
 		} else {
 			return false
