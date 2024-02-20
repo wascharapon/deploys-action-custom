@@ -8450,13 +8450,10 @@ class DeployHandler {
 			return true
 		}
 
+		axiosConfigClickUp.headers.Authorization = req.clickUpToken
+
 		axiosConfigClickUp = {
 			...axiosConfigClickUp,
-			...{
-				headers: {
-					'Authorization': req.clickUpToken
-				}
-			},
 			...{
 				url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task',
 				method: 'get',
@@ -8488,7 +8485,7 @@ class DeployHandler {
 				})
 			}
 		}
-
+		
 		const resCreateCommentClickUp = await axios(axiosConfigClickUp, 'Create Comment ClickUp')
 
 		if (!resCreateCommentClickUp) {
