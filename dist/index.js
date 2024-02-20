@@ -8501,7 +8501,7 @@ class DeployHandler {
 		axiosConfigDeployApp = {
 			...axiosConfigDeployApp,
 			...{
-				url: API_DEPLOY_APP + '.delete',
+				url: API_END_POINT.deployApp + '.delete',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
