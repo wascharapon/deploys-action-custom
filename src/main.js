@@ -198,14 +198,11 @@ class DeployHandler {
 		if (req.clickUpToken == '' && req.clickUpTeamId == '') {
 			return true
 		}
+		
+		axiosConfigClickUp.headers.Authorization = req.clickUpToken
 
 		axiosConfigClickUp = {
 			...axiosConfigClickUp,
-			...{
-				headers: {
-					'Authorization': req.clickUpToken
-				}
-			},
 			...{
 				url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task',
 				method: 'get',
@@ -237,7 +234,7 @@ class DeployHandler {
 				})
 			}
 		}
-
+		{ "url": "https://api.clickup.com/api/v2/task/86cung813/comment", "headers": { "Authorization": "54806581_fc0917a5586b54f919ddda69628174cf98fdd97d45900999fa3fafceb72f32cb" }, "method": "post", "data": "{\"comment_text\":\"Deploy admin-panel-fe-tbr-4316 Success URL: admin-panel-fe-tbr-4316-779241746755715105.rcf2.deploys.app\",\"notify_all\":true}" }
 		const resCreateCommentClickUp = await axios(axiosConfigClickUp, 'Create Comment ClickUp')
 
 		if (!resCreateCommentClickUp) {
