@@ -214,7 +214,8 @@ class DeployHandler {
 
 		const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
 
-		const custom_id = req.from.split(req.name)[1].toUpperCase()
+		const custom_id = req.name.split(req.from + '-')[1].toUpperCase();
+
 		core.info(`Custom ID ${custom_id}`)
 
 		const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
@@ -282,7 +283,7 @@ class DeployHandler {
 		}
 
 		const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
-		
+
 		if (!resSendMessageTelegram) {
 			return false
 		}
