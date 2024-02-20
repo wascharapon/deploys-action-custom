@@ -8425,17 +8425,17 @@ class DeployHandler {
 			return false
 		}
 
-		if (res.tokenTelegram == '' && res.chatIdTelegram == '') {
+		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
 			return true
 		}
 
 		axiosConfigTelegramBot = {
 			...axiosConfigTelegramBot,
 			...{
-				url: API_END_POINT.telegramBot + '/bot' + res.tokenTelegram + '/sendMessage',
+				url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
 				method: 'post',
 				data: JSON.stringify({
-					chat_id: res.chatIdTelegram,
+					chat_id: req.chatIdTelegram,
 					text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`
 				})
 			}
@@ -8446,7 +8446,7 @@ class DeployHandler {
 			return false
 		}
 
-		if (res.clickUpToken == '' && res.clickUpTeamId == '') {
+		if (req.clickUpToken == '' && req.clickUpTeamId == '') {
 			return true
 		}
 
@@ -8454,18 +8454,18 @@ class DeployHandler {
 			...axiosConfigClickUp,
 			...{
 				headers: {
-					'Authorization': res.clickUpToken
+					'Authorization': req.clickUpToken
 				}
 			},
 			...{
-				url: API_END_POINT.clickUp + '/team/' + res.clickUpTeamId + '/task',
+				url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task',
 				method: 'get',
 			}
 		}
 
 		const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
 
-		const custom_id = res.from.split(res.name)[1].toUpperCase()
+		const custom_id = req.from.split(req.name)[1].toUpperCase()
 		core.info(`Custom ID ${custom_id}`)
 
 		const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
@@ -8513,6 +8513,28 @@ class DeployHandler {
 
 		const res = await axios(axiosConfigDeployApp, 'Delete Form Project')
 		if (!res) {
+			return false
+		}
+
+		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
+			return true
+		}
+
+		axiosConfigTelegramBot = {
+			...axiosConfigTelegramBot,
+			...{
+				url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
+				method: 'post',
+				data: JSON.stringify({
+					chat_id: req.chatIdTelegram,
+					text: `Delete ${req.name} Success`
+				})
+			}
+		}
+
+		const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
+		
+		if (!resSendMessageTelegram) {
 			return false
 		}
 
