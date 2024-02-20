@@ -1,14 +1,35 @@
 const core = require('@actions/core')
 const axiosNode = require('axios');
+const API_END_POINT = {
+	deployApp: 'https://console.deploys.app/api/deployment',
+	telegramBot: 'https://api.telegram.org',
+	clickUp: 'https://api.clickup.com/api/v2'
 
-const API_DEPLOY_APP = "https://console.deploys.app/api/deployment"
+}
+
+var countStepProcessing = 1;
 
 var axiosConfigDeployApp = {
-	url: API_DEPLOY_APP,
+	url: '',
 	headers: {
 		'content-type': 'application/json',
 		'cookie': 'token=deploys-api.l3DQqHOb-6PAPZFbstoBIFYZOvjYEKn5wgZxS7wU25M;'
 	},
+};
+
+var axiosConfigTelegramBot = {
+	url: '',
+	headers: {
+		'content-type': 'application/json',
+	}
+};
+
+var axiosConfigClickUp = {
+	url: '',
+	headers: {
+		'content-type': 'application/json',
+		'Authorization': ''
+	}
 };
 
 const masterDeployAppBodyRequest = {
@@ -64,7 +85,7 @@ async function axios(config, functionName) {
 	core.info(`API Config ${JSON.stringify(config)}`)
 	const res = await axiosNode(config)
 		.then(function (response) {
-			core.info(`Call ${functionName} Success`)
+			core.info(`Call Step ${countStepProcessing++} : ${functionName} Success`)
 			core.info(`Api Response ${JSON.stringify(response.data)}`)
 			return response.data
 		})
@@ -92,7 +113,7 @@ class DeployHandler {
 		axiosConfigDeployApp = {
 			...axiosConfigDeployApp,
 			...{
-				url: API_DEPLOY_APP + '.get',
+				url: API_END_POINT.deployApp + '.get',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
@@ -102,7 +123,7 @@ class DeployHandler {
 			}
 		}
 
-		const resGet = await axios(axiosConfigDeployApp, 'Step 1 Get Env Master Project')
+		const resGet = await axios(axiosConfigDeployApp, 'Get Env Master Project')
 		if (!resGet) {
 			return false
 		}
@@ -111,7 +132,7 @@ class DeployHandler {
 		axiosConfigDeployApp = {
 			...axiosConfigDeployApp,
 			...{
-				url: API_DEPLOY_APP + '.deploy',
+				url: API_END_POINT.deployApp + '.deploy',
 				method: 'post',
 				data: JSON.stringify({
 					...masterDeployAppBodyRequest,
@@ -128,7 +149,7 @@ class DeployHandler {
 			}
 		}
 
-		const resDeploy = await axios(axiosConfigDeployApp, 'Step 2 Deploy Project')
+		const resDeploy = await axios(axiosConfigDeployApp, 'Deploy Project')
 		if (!resDeploy) {
 			return false
 		}
@@ -136,7 +157,7 @@ class DeployHandler {
 		axiosConfigDeployApp = {
 			...axiosConfigDeployApp,
 			...{
-				url: API_DEPLOY_APP + '.get',
+				url: API_END_POINT.deployApp + '.get',
 				method: 'post',
 				data: JSON.stringify({
 					project: req.project,
@@ -146,9 +167,79 @@ class DeployHandler {
 			}
 		}
 
-		const resGetUrl = await axios(axiosConfigDeployApp, 'Step 3 Get URL Project')
+		const resGetUrl = await axios(axiosConfigDeployApp, 'Get URL Project')
 		core.info(`URL ${resGetUrl.result.url}`)
+
 		if (!resGetUrl) {
+			return false
+		}
+
+		if (res.tokenTelegram == '' && res.chatIdTelegram == '') {
+			return true
+		}
+
+		axiosConfigTelegramBot = {
+			...axiosConfigTelegramBot,
+			...{
+				url: API_END_POINT.telegramBot + '/bot' + res.tokenTelegram + '/sendMessage',
+				method: 'post',
+				data: JSON.stringify({
+					chat_id: res.chatIdTelegram,
+					text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`
+				})
+			}
+		}
+
+		const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
+		if (!resSendMessageTelegram) {
+			return false
+		}
+
+		if (res.clickUpToken == '' && res.clickUpTeamId == '') {
+			return true
+		}
+
+		axiosConfigClickUp = {
+			...axiosConfigClickUp,
+			...{
+				headers: {
+					'Authorization': res.clickUpToken
+				}
+			},
+			...{
+				url: API_END_POINT.clickUp + '/team/' + res.clickUpTeamId + '/task',
+				method: 'get',
+			}
+		}
+
+		const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
+
+		const custom_id = res.from.split(res.name)[1].toUpperCase()
+		core.info(`Custom ID ${custom_id}`)
+
+		const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
+
+		if (!task) {
+			return false
+		}
+
+		core.info(`Task ID ${task.id}`)
+
+		axiosConfigClickUp = {
+			...axiosConfigClickUp,
+			...{
+				url: API_END_POINT.clickUp + '/task/' + task.id + '/comment',
+				method: 'post',
+				data: JSON.stringify({
+					comment_text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`,
+					notify_all: true
+				})
+			}
+		}
+
+		const resCreateCommentClickUp = await axios(axiosConfigClickUp, 'Create Comment ClickUp')
+
+		if (!resCreateCommentClickUp) {
 			return false
 		}
 
@@ -189,6 +280,10 @@ async function run() {
 			from: core.getInput('from'),
 			minReplicas: core.getInput('minReplicas'),
 			maxReplicas: core.getInput('maxReplicas'),
+			tokenTelegram: core.getInput('tokenTelegram'),
+			chatIdTelegram: core.getInput('chatIdTelegram'),
+			clickUpToken: core.getInput('clickUpToken'),
+			clickUpTeamId: core.getInput('clickUpTeamId'),
 		}
 		core.info('Started API Deploys')
 		core.info(`Request inputs:${JSON.stringify(inputs)}`)
