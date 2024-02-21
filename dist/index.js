@@ -8445,30 +8445,30 @@ class DeployHandler {
 			const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
 
 			if (!task) {
-				core.info(`Checklist SubTask`)
-				await teamTask.tasks.forEach(async (task) => {
-					core.info(`Task ID ${task.id}`)
+				core.info(`Checklist SubTask`);
+				for (const parentTask of teamTask.tasks) {
+					core.info(`Task ID ${parentTask.id}`);
 					axiosConfigClickUp = {
 						...axiosConfigClickUp,
 						...{
-							url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task?page=&parent=' + task.id,
+							url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task?page=&parent=' + parentTask.id,
 							method: 'get',
-						}
-					}
-					const resSubTask = await axios(axiosConfigClickUp, 'Get SubTask ClickUp')
+						},
+					};
+					const resSubTask = await axios(axiosConfigClickUp, 'Get SubTask ClickUp');
 
 					if (!resSubTask) {
-						return false
+						return false;
 					}
 
-					const subtask = resSubTask.tasks.find((task) => task.custom_id === custom_id)
+					const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
 
 					if (!subtask) {
-						return false
+						return false;
 					}
 
-					task = subtask
-				})
+					task = subtask;
+				}
 			}
 
 			core.info(`Task ID ${task.id}`)
@@ -8493,7 +8493,7 @@ class DeployHandler {
 
 		}
 
-		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
+		if (req.tokenTelegram != '' && req.chatIdTelegram != '') {
 			axiosConfigTelegramBot = {
 				...axiosConfigTelegramBot,
 				...{
@@ -8536,26 +8536,24 @@ class DeployHandler {
 			return false
 		}
 
-		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
-			return true
-		}
-
-		axiosConfigTelegramBot = {
-			...axiosConfigTelegramBot,
-			...{
-				url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
-				method: 'post',
-				data: JSON.stringify({
-					chat_id: req.chatIdTelegram,
-					text: `Delete:${req.name} Success`
-				})
+		if (req.tokenTelegram != '' && req.chatIdTelegram != '') {
+			axiosConfigTelegramBot = {
+				...axiosConfigTelegramBot,
+				...{
+					url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
+					method: 'post',
+					data: JSON.stringify({
+						chat_id: req.chatIdTelegram,
+						text: `Delete:${req.name} Success`
+					})
+				}
 			}
-		}
 
-		const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
+			const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
 
-		if (!resSendMessageTelegram) {
-			return false
+			if (!resSendMessageTelegram) {
+				return false
+			}
 		}
 
 		return true
