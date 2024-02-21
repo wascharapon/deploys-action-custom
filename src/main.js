@@ -242,7 +242,7 @@ class DeployHandler {
 
 		}
 
-		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
+		if (req.tokenTelegram != '' && req.chatIdTelegram != '') {
 			axiosConfigTelegramBot = {
 				...axiosConfigTelegramBot,
 				...{
@@ -285,26 +285,24 @@ class DeployHandler {
 			return false
 		}
 
-		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
-			return true
-		}
-
-		axiosConfigTelegramBot = {
-			...axiosConfigTelegramBot,
-			...{
-				url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
-				method: 'post',
-				data: JSON.stringify({
-					chat_id: req.chatIdTelegram,
-					text: `Delete:${req.name} Success`
-				})
+		if (req.tokenTelegram != '' && req.chatIdTelegram != '') {
+			axiosConfigTelegramBot = {
+				...axiosConfigTelegramBot,
+				...{
+					url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
+					method: 'post',
+					data: JSON.stringify({
+						chat_id: req.chatIdTelegram,
+						text: `Delete:${req.name} Success`
+					})
+				}
 			}
-		}
 
-		const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
+			const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
 
-		if (!resSendMessageTelegram) {
-			return false
+			if (!resSendMessageTelegram) {
+				return false
+			}
 		}
 
 		return true
