@@ -13,8 +13,8 @@ var axiosConfigDeployApp = {
 	url: '',
 	headers: {
 		'content-type': 'application/json',
-		'cookie': 'token='
 	},
+	auth: {}
 };
 
 var axiosConfigTelegramBot = {
@@ -320,7 +320,8 @@ async function run() {
 			from: core.getInput('from'),
 			minReplicas: core.getInput('minReplicas'),
 			maxReplicas: core.getInput('maxReplicas'),
-			tokenDeployApp: core.getInput('tokenDeployApp'),
+			usernameDeployApp: core.getInput('usernameDeployApp'),
+			passwordDeployApp: core.getInput('passwordDeployApp'),
 			portDeployApp: core.getInput('portDeployApp'),
 			tokenTelegram: core.getInput('tokenTelegram'),
 			chatIdTelegram: core.getInput('chatIdTelegram'),
@@ -333,7 +334,11 @@ async function run() {
 
 		const deployHandler = new DeployHandler()
 
-		axiosConfigDeployApp.headers.cookie = `token=${inputs.tokenDeployApp}`
+		axiosConfigDeployApp.auth = {
+			username: inputs.usernameDeployApp,
+			password: inputs.passwordDeployApp
+		}
+
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
 		const res = await deployHandler.main(inputs)

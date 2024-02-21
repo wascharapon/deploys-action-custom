@@ -31,14 +31,18 @@ inputs:
     description: Maximum Replicas
     required: false
     default: "1"
-  tokenDeployApp:
-    description: DeployApp Token
+  usernameDeployApp:
+    description: Username Deploy App
+    required: true
+    default: ""
+  passwordDeployApp:
+    description: Password Deploy App
     required: true
     default: ""
   portDeployApp:
     description: Port Deploy App
     required: false
-    default: "8080"  
+    default: "8080"
   tokenTelegram:
     description: Telegram Token
     required: false
