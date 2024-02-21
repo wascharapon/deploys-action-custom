@@ -13,6 +13,7 @@ var axiosConfigDeployApp = {
 	url: '',
 	headers: {
 		'content-type': 'application/json',
+		Authorization: 'Basic'
 	},
 	auth: {}
 };
@@ -334,10 +335,7 @@ async function run() {
 
 		const deployHandler = new DeployHandler()
 
-		axiosConfigDeployApp.auth = {
-			username: 'github@scamo-group.serviceaccount.deploys.app',
-			password: 'Fm96uItZ2nuN5BzwCGrFCoifLfLcfnYUzVJJNtrn7Ord4HB4rwzv8W25XgXg4TBr'
-		}
+		axiosConfigDeployApp.headers.Authorization = 'Basic ' + Buffer.from(inputs.unameDeployApp + ':' + inputs.passDeployApp).toString('base64')
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
