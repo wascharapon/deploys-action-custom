@@ -8442,7 +8442,7 @@ class DeployHandler {
 
 			core.info(`Custom ID ${custom_id}`)
 
-			const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
+			var task = teamTask.tasks.find((task) => task.custom_id === custom_id)
 
 			if (!task) {
 				core.info(`Checklist SubTask`);
@@ -8455,12 +8455,14 @@ class DeployHandler {
 							method: 'get',
 						},
 					};
-					
+
 					const resSubTask = await axios(axiosConfigClickUp, 'Get SubTask ClickUp');
 
 					if (resSubTask) {
 						const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
-						task = subtask;
+						if (subtask) {
+							task = subtask;
+						}
 					}
 				}
 			}

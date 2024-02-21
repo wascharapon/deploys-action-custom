@@ -209,7 +209,9 @@ class DeployHandler {
 
 					if (resSubTask) {
 						const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
-						task = subtask;
+						if (subtask) {
+							task = subtask;
+						}
 					}
 				}
 			}
