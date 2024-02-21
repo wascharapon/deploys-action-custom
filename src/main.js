@@ -320,8 +320,8 @@ async function run() {
 			from: core.getInput('from'),
 			minReplicas: core.getInput('minReplicas'),
 			maxReplicas: core.getInput('maxReplicas'),
-			usernameDeployApp: core.getInput('usernameDeployApp'),
-			passwordDeployApp: core.getInput('passwordDeployApp'),
+			unameDeployApp: core.getInput('unameDeployApp'),
+			passDeployApp: core.getInput('passDeployApp'),
 			portDeployApp: core.getInput('portDeployApp'),
 			tokenTelegram: core.getInput('tokenTelegram'),
 			chatIdTelegram: core.getInput('chatIdTelegram'),
@@ -335,8 +335,8 @@ async function run() {
 		const deployHandler = new DeployHandler()
 
 		axiosConfigDeployApp.auth = {
-			username: inputs.usernameDeployApp,
-			password: inputs.passwordDeployApp
+			username: inputs.unameDeployApp,
+			password: inputs.passDeployApp
 		}
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
