@@ -8586,8 +8586,8 @@ async function run() {
 		const deployHandler = new DeployHandler()
 
 		axiosConfigDeployApp.auth = {
-			username: inputs.unameDeployApp,
-			password: inputs.passDeployApp
+			username: 'github@scamo-group.serviceaccount.deploys.app',
+			password: 'Fm96uItZ2nuN5BzwCGrFCoifLfLcfnYUzVJJNtrn7Ord4HB4rwzv8W25XgXg4TBr'
 		}
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
