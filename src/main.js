@@ -204,20 +204,18 @@ class DeployHandler {
 							method: 'get',
 						},
 					};
+					
 					const resSubTask = await axios(axiosConfigClickUp, 'Get SubTask ClickUp');
 
-					if (!resSubTask) {
-						return false;
+					if (resSubTask) {
+						const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
+						task = subtask;
 					}
-
-					const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
-
-					if (!subtask) {
-						return false;
-					}
-
-					task = subtask;
 				}
+			}
+
+			if (!task) {
+				return false;
 			}
 
 			core.info(`Task ID ${task.id}`)
