@@ -13,7 +13,7 @@ var axiosConfigDeployApp = {
 	url: '',
 	headers: {
 		'content-type': 'application/json',
-		'cookie': 'token=deploys-api.l3DQqHOb-6PAPZFbstoBIFYZOvjYEKn5wgZxS7wU25M;'
+		'cookie': 'token='
 	},
 };
 
@@ -174,71 +174,93 @@ class DeployHandler {
 			return false
 		}
 
+		if (req.clickUpToken != '' && req.clickUpTeamId != '') {
+			axiosConfigClickUp.headers.Authorization = req.clickUpToken
+
+			axiosConfigClickUp = {
+				...axiosConfigClickUp,
+				...{
+					url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task',
+					method: 'get',
+				}
+			}
+
+			const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
+
+			const custom_id = req.name.split(req.from + '-')[1].toUpperCase();
+
+			core.info(`Custom ID ${custom_id}`)
+
+			const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
+
+			if (!task) {
+				core.info(`Checklist SubTask`)
+				await teamTask.tasks.forEach(async (task) => {
+					core.info(`Task ID ${task.id}`)
+					axiosConfigClickUp = {
+						...axiosConfigClickUp,
+						...{
+							url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task?page=&parent=' + task.id,
+							method: 'get',
+						}
+					}
+					const resSubTask = await axios(axiosConfigClickUp, 'Get SubTask ClickUp')
+
+					if (!resSubTask) {
+						return false
+					}
+
+					const subtask = resSubTask.tasks.find((task) => task.custom_id === custom_id)
+
+					if (!subtask) {
+						return false
+					}
+
+					task = subtask
+				})
+			}
+
+			core.info(`Task ID ${task.id}`)
+
+			axiosConfigClickUp = {
+				...axiosConfigClickUp,
+				...{
+					url: API_END_POINT.clickUp + '/task/' + task.id + '/comment',
+					method: 'post',
+					data: JSON.stringify({
+						comment_text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`,
+						notify_all: true
+					})
+				}
+			}
+
+			const resCreateCommentClickUp = await axios(axiosConfigClickUp, 'Create Comment ClickUp')
+
+			if (!resCreateCommentClickUp) {
+				return false
+			}
+
+		}
+
 		if (req.tokenTelegram == '' && req.chatIdTelegram == '') {
-			return true
-		}
-
-		axiosConfigTelegramBot = {
-			...axiosConfigTelegramBot,
-			...{
-				url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
-				method: 'post',
-				data: JSON.stringify({
-					chat_id: req.chatIdTelegram,
-					text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`
-				})
+			axiosConfigTelegramBot = {
+				...axiosConfigTelegramBot,
+				...{
+					url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
+					method: 'post',
+					data: JSON.stringify({
+						chat_id: req.chatIdTelegram,
+						text: task ?
+							`Deploy:${task.name} Success \n URL ClickUp:${task.url} \n URL For Test: ${resGetUrl.result.url}` :
+							`Deploy:${req.name} Success \n URL For Test: ${resGetUrl.result.url}`
+					})
+				}
 			}
-		}
 
-		const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
-		if (!resSendMessageTelegram) {
-			return false
-		}
-
-		if (req.clickUpToken == '' && req.clickUpTeamId == '') {
-			return true
-		}
-
-		axiosConfigClickUp.headers.Authorization = req.clickUpToken
-
-		axiosConfigClickUp = {
-			...axiosConfigClickUp,
-			...{
-				url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task',
-				method: 'get',
+			const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
+			if (!resSendMessageTelegram) {
+				return false
 			}
-		}
-
-		const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
-
-		const custom_id = req.name.split(req.from + '-')[1].toUpperCase();
-
-		core.info(`Custom ID ${custom_id}`)
-
-		const task = teamTask.tasks.find((task) => task.custom_id === custom_id)
-
-		if (!task) {
-			return false
-		}
-
-		core.info(`Task ID ${task.id}`)
-
-		axiosConfigClickUp = {
-			...axiosConfigClickUp,
-			...{
-				url: API_END_POINT.clickUp + '/task/' + task.id + '/comment',
-				method: 'post',
-				data: JSON.stringify({
-					comment_text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`,
-					notify_all: true
-				})
-			}
-		}
-		
-		const resCreateCommentClickUp = await axios(axiosConfigClickUp, 'Create Comment ClickUp')
-
-		if (!resCreateCommentClickUp) {
-			return false
 		}
 
 		return true
@@ -274,7 +296,7 @@ class DeployHandler {
 				method: 'post',
 				data: JSON.stringify({
 					chat_id: req.chatIdTelegram,
-					text: `Delete ${req.name} Success`
+					text: `Delete:${req.name} Success`
 				})
 			}
 		}
@@ -300,14 +322,22 @@ async function run() {
 			from: core.getInput('from'),
 			minReplicas: core.getInput('minReplicas'),
 			maxReplicas: core.getInput('maxReplicas'),
+			tokenDeployApp: core.getInput('tokenDeployApp'),
+			portDeployApp: core.getInput('portDeployApp'),
 			tokenTelegram: core.getInput('tokenTelegram'),
 			chatIdTelegram: core.getInput('chatIdTelegram'),
 			clickUpToken: core.getInput('clickUpToken'),
 			clickUpTeamId: core.getInput('clickUpTeamId'),
 		}
+
 		core.info('Started API Deploys')
 		core.info(`Request inputs:${JSON.stringify(inputs)}`)
+
 		const deployHandler = new DeployHandler()
+
+		axiosConfigDeployApp.headers.cookie = `token=${inputs.tokenDeployApp}`
+		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
+
 		const res = await deployHandler.main(inputs)
 		if (res) {
 			core.info(`Deploy is success`)
