@@ -8334,12 +8334,12 @@ const DeployActionEnum = {
 }
 
 async function axios(config, functionName) {
-	core.info(`API Request ${functionName}`)
+	// core.info(`API Request ${functionName}`)
 	// core.info(`API Config ${JSON.stringify(config)}`)
 	const res = await axiosNode(config)
 		.then(function (response) {
 			core.info(`Call Step ${countStepProcessing++} : ${functionName} ✅`)
-			core.info(`Api Response ${JSON.stringify(response.data)}`)
+			// core.info(`Api Response ${JSON.stringify(response.data)}`)
 			return response.data
 		})
 		.catch(function (error) {
@@ -8597,7 +8597,6 @@ async function run() {
 
 		const res = await deployHandler.main(inputs)
 
-		console.log(axiosConfigDeployApp)
 		if (res) {
 			core.info(`🚀 : ✅`)
 		} else {
