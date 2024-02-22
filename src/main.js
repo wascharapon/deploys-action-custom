@@ -14,7 +14,9 @@ var axiosConfigDeployApp = {
 	headers: {
 		'content-type': 'application/json',
 	},
-	auth: {}
+	auth: {
+
+	}
 };
 
 var axiosConfigTelegramBot = {
@@ -335,9 +337,12 @@ async function run() {
 		const deployHandler = new DeployHandler()
 
 		axiosConfigDeployApp.auth = {
-			username: inputs.DEPLOYS_AUTH_USER,
-			password: inputs.DEPLOYS_AUTH_PASS
+			username: process.env.DEPLOYS_AUTH_USER,
+			password: process.env.DEPLOYS_AUTH_PASS
 		}
+		
+		core.info(`VIEW ENV : ${JSON.stringify(process.env)}`)
+		core.info(`TEST ENV : ${process.env.DEPLOYS_AUTH_PASS}`)
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
