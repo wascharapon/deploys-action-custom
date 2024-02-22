@@ -8576,8 +8576,8 @@ async function run() {
 			chatIdTelegram: core.getInput('chatIdTelegram'),
 			clickUpToken: core.getInput('clickUpToken'),
 			clickUpTeamId: core.getInput('clickUpTeamId'),
-			DEPLOYS_AUTH_USER: core.getInput('DEPLOYS_AUTH_USER'),
-			DEPLOYS_AUTH_PASS: core.getInput('DEPLOYS_AUTH_PASS'),
+			DEPLOYS_AUTH_USER: process.env.DEPLOYS_AUTH_USER,
+			DEPLOYS_AUTH_PASS: process.env.DEPLOYS_AUTH_PASS,
 		}
 
 		core.info('Started API Deploys')
