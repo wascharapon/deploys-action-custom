@@ -7,7 +7,8 @@
   "author": "DeploysCustom.app",
   "license": "MIT",
   "scripts": {
-    "build": "ncc build"
+    "build": "ncc build",
+    "start": "cross-env DEBUG=true node server.js"
   },
   "dependencies": {
     "@actions/core": "^1.2.7",

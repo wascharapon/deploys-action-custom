@@ -8252,7 +8252,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(186)
 const axiosNode = __nccwpck_require__(441);
 const API_END_POINT = {
-	deployApp: 'https://console.deploys.app/api/deployment',
+	deployApp: 'https://api.deploys.app/deployment',
 	telegramBot: 'https://api.telegram.org',
 	clickUp: 'https://api.clickup.com/api/v2'
 
@@ -8263,7 +8263,7 @@ var countStepProcessing = 1;
 var axiosConfigDeployApp = {
 	url: '',
 	headers: {
-		'content-type': 'application/json',
+		'Content-Type': 'application/json',
 	},
 	auth: {
 
@@ -8273,14 +8273,14 @@ var axiosConfigDeployApp = {
 var axiosConfigTelegramBot = {
 	url: '',
 	headers: {
-		'content-type': 'application/json',
+		'Content-Type': 'application/json',
 	}
 };
 
 var axiosConfigClickUp = {
 	url: '',
 	headers: {
-		'content-type': 'application/json',
+		'Content-Type': 'application/json',
 		'Authorization': ''
 	}
 };
@@ -8335,15 +8335,15 @@ const DeployActionEnum = {
 
 async function axios(config, functionName) {
 	core.info(`API Request ${functionName}`)
-	core.info(`API Config ${JSON.stringify(config)}`)
+	// core.info(`API Config ${JSON.stringify(config)}`)
 	const res = await axiosNode(config)
 		.then(function (response) {
-			core.info(`Call Step ${countStepProcessing++} : ${functionName} Success`)
+			core.info(`Call Step ${countStepProcessing++} : ${functionName} ✅`)
 			core.info(`Api Response ${JSON.stringify(response.data)}`)
 			return response.data
 		})
 		.catch(function (error) {
-			core.info(`Call ${functionName} Not Success`)
+			core.info(`Call ${functionName} Not ✅`)
 			core.info(JSON.stringify(error))
 			return null
 		});
@@ -8448,6 +8448,7 @@ class DeployHandler {
 
 			if (!task) {
 				core.info(`Checklist SubTask`);
+
 				for (const parentTask of teamTask.tasks) {
 					core.info(`Task ID ${parentTask.id}`);
 					axiosConfigClickUp = {
@@ -8464,6 +8465,7 @@ class DeployHandler {
 						const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
 						if (subtask) {
 							task = subtask;
+							break;
 						}
 					}
 				}
@@ -8481,7 +8483,7 @@ class DeployHandler {
 					url: API_END_POINT.clickUp + '/task/' + task.id + '/comment',
 					method: 'post',
 					data: JSON.stringify({
-						comment_text: `Deploy ${req.name} Success URL: ${resGetUrl.result.url}`,
+						comment_text: `🚀 : ${task.name} ✅\n🔗 URL ClickUp: ${task.url}\n🌐 URL For Test: ${resGetUrl.result.url}`,
 						notify_all: true
 					})
 				}
@@ -8504,8 +8506,8 @@ class DeployHandler {
 					data: JSON.stringify({
 						chat_id: req.chatIdTelegram,
 						text: task ?
-							`Deploy:${task.name} Success \n URL ClickUp:${task.url} \n URL For Test: ${resGetUrl.result.url}` :
-							`Deploy:${req.name} Success \n URL For Test: ${resGetUrl.result.url}`
+							`🚀 : ${task.name} ✅\n🔗 URL ClickUp: ${task.url}\n🌐 URL For Test: ${resGetUrl.result.url}` :
+							`🚀 : ${req.name} ✅\n🌐 URL For Test: ${resGetUrl.result.url}`
 					})
 				}
 			}
@@ -8546,7 +8548,7 @@ class DeployHandler {
 					method: 'post',
 					data: JSON.stringify({
 						chat_id: req.chatIdTelegram,
-						text: `Delete:${req.name} Success`
+						text: `🗑️: ${req.name} ✅`
 					})
 				}
 			}
@@ -8582,8 +8584,7 @@ async function run() {
 			DEPLOYS_AUTH_PASS: process.env.DEPLOYS_AUTH_PASS,
 		}
 
-		core.info('Started API Deploys')
-		core.info(`Request inputs:${JSON.stringify(inputs)}`)
+		core.info('Started API Deploys 🚀')
 
 		const deployHandler = new DeployHandler()
 
@@ -8592,16 +8593,15 @@ async function run() {
 			password: inputs.DEPLOYS_AUTH_PASS
 		}
 
-		core.info(`VIEW ENV : ${JSON.stringify(process.env)}`)
-		core.info(`TEST ENV : ${process.env.DEPLOYS_AUTH_TEST}`)
-
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
 		const res = await deployHandler.main(inputs)
+
+		console.log(axiosConfigDeployApp)
 		if (res) {
-			core.info(`Deploy is success`)
+			core.info(`🚀 : ✅`)
 		} else {
-			core.info(`Deploy is not success`)
+			core.info(`🚀 : ❌`)
 		}
 	} catch (error) {
 		core.setFailed(error.message)
