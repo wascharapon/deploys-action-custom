@@ -8264,7 +8264,6 @@ var axiosConfigDeployApp = {
 	url: '',
 	headers: {
 		'content-type': 'application/json',
-		Authorization: 'Basic'
 	},
 	auth: {}
 };
@@ -8572,13 +8571,13 @@ async function run() {
 			from: core.getInput('from'),
 			minReplicas: core.getInput('minReplicas'),
 			maxReplicas: core.getInput('maxReplicas'),
-			unameDeployApp: core.getInput('unameDeployApp'),
-			passDeployApp: core.getInput('passDeployApp'),
 			portDeployApp: core.getInput('portDeployApp'),
 			tokenTelegram: core.getInput('tokenTelegram'),
 			chatIdTelegram: core.getInput('chatIdTelegram'),
 			clickUpToken: core.getInput('clickUpToken'),
 			clickUpTeamId: core.getInput('clickUpTeamId'),
+			DEPLOYS_AUTH_USER: core.getInput('DEPLOYS_AUTH_USER'),
+			DEPLOYS_AUTH_PASS: core.getInput('DEPLOYS_AUTH_PASS'),
 		}
 
 		core.info('Started API Deploys')
@@ -8586,7 +8585,10 @@ async function run() {
 
 		const deployHandler = new DeployHandler()
 
-		axiosConfigDeployApp.headers.Authorization = 'Basic ' + Buffer.from(inputs.unameDeployApp + ':' + inputs.passDeployApp).toString('base64')
+		axiosConfigDeployApp.auth = {
+			username: inputs.DEPLOYS_AUTH_USER,
+			password: inputs.DEPLOYS_AUTH_PASS
+		}
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
