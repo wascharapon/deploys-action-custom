@@ -31,14 +31,6 @@ inputs:
     description: Maximum Replicas
     required: false
     default: "1"
-  unameDeployApp:
-    description: Username Deploy App
-    required: true
-    default: ""
-  passDeployApp:
-    description: Password Deploy App
-    required: true
-    default: ""
   portDeployApp:
     description: Port Deploy App
     required: false
