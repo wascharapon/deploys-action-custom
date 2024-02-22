@@ -337,12 +337,12 @@ async function run() {
 		const deployHandler = new DeployHandler()
 
 		axiosConfigDeployApp.auth = {
-			username: process.env.DEPLOYS_AUTH_USER,
-			password: process.env.DEPLOYS_AUTH_PASS
+			username: inputs.DEPLOYS_AUTH_USER,
+			password: inputs.DEPLOYS_AUTH_PASS
 		}
-		
+
 		core.info(`VIEW ENV : ${JSON.stringify(process.env)}`)
-		core.info(`TEST ENV : ${process.env.DEPLOYS_AUTH_PASS}`)
+		core.info(`TEST ENV : ${process.env.DEPLOYS_AUTH_TEST}`)
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
