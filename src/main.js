@@ -170,7 +170,27 @@ class DeployHandler {
 		}
 
 		const resGetUrl = await axios(axiosConfigDeployApp, 'Get URL Project')
+
 		core.info(`URL ${resGetUrl.result.url}`)
+
+		if (req.tokenTelegram != '' && req.chatIdTelegram != '') {
+			axiosConfigTelegramBot = {
+				...axiosConfigTelegramBot,
+				...{
+					url: API_END_POINT.telegramBot + '/bot' + req.tokenTelegram + '/sendMessage',
+					method: 'post',
+					data: JSON.stringify({
+						chat_id: req.chatIdTelegram,
+						text: `🚀 : ${req.name} ✅\n🌐 URL For Test: ${resGetUrl.result.url}`
+					})
+				}
+			}
+
+			const resSendMessageTelegram = await axios(axiosConfigTelegramBot, 'Send Message Telegram')
+			if (!resSendMessageTelegram) {
+				return false
+			}
+		}
 
 		if (!resGetUrl) {
 			return false
@@ -188,12 +208,14 @@ class DeployHandler {
 			}
 
 			const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
+			
+			teamTask = teamTask.reverse();
 
 			const custom_id = req.name.split(req.from + '-')[1].toUpperCase();
 
 			core.info(`Custom ID ${custom_id}`)
 
-			var task = teamTask.tasks.find((task) => task.custom_id === custom_id)
+			var task = teamTask.tasks.find((task) => task.custom_id === custom_id).reverse();
 
 			if (!task) {
 				core.info(`Checklist SubTask`);
