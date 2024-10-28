@@ -8421,81 +8421,8 @@ class DeployHandler {
 		}
 
 		const resGetUrl = await axios(axiosConfigDeployApp, 'Get URL Project')
+
 		core.info(`URL ${resGetUrl.result.url}`)
-
-		if (!resGetUrl) {
-			return false
-		}
-
-		if (req.clickUpToken != '' && req.clickUpTeamId != '') {
-			axiosConfigClickUp.headers.Authorization = req.clickUpToken
-
-			axiosConfigClickUp = {
-				...axiosConfigClickUp,
-				...{
-					url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task',
-					method: 'get',
-				}
-			}
-
-			const teamTask = await axios(axiosConfigClickUp, 'Get Team Task ClickUp')
-
-			const custom_id = req.name.split(req.from + '-')[1].toUpperCase();
-
-			core.info(`Custom ID ${custom_id}`)
-
-			var task = teamTask.tasks.find((task) => task.custom_id === custom_id)
-
-			if (!task) {
-				core.info(`Checklist SubTask`);
-
-				for (const parentTask of teamTask.tasks) {
-					core.info(`Task ID ${parentTask.id}`);
-					axiosConfigClickUp = {
-						...axiosConfigClickUp,
-						...{
-							url: API_END_POINT.clickUp + '/team/' + req.clickUpTeamId + '/task?page=&parent=' + parentTask.id,
-							method: 'get',
-						},
-					};
-
-					const resSubTask = await axios(axiosConfigClickUp, 'Get SubTask ClickUp');
-
-					if (resSubTask) {
-						const subtask = resSubTask.tasks.find((subtask) => subtask.custom_id === custom_id);
-						if (subtask) {
-							task = subtask;
-							break;
-						}
-					}
-				}
-			}
-
-			if (!task) {
-				return false;
-			}
-
-			core.info(`Task ID ${task.id}`)
-
-			axiosConfigClickUp = {
-				...axiosConfigClickUp,
-				...{
-					url: API_END_POINT.clickUp + '/task/' + task.id + '/comment',
-					method: 'post',
-					data: JSON.stringify({
-						comment_text: `🚀 : ${task.name} ✅\n🔗 URL ClickUp: ${task.url}\n🌐 URL For Test: ${resGetUrl.result.url}`,
-						notify_all: true
-					})
-				}
-			}
-
-			const resCreateCommentClickUp = await axios(axiosConfigClickUp, 'Create Comment ClickUp')
-
-			if (!resCreateCommentClickUp) {
-				return false
-			}
-
-		}
 
 		if (req.tokenTelegram != '' && req.chatIdTelegram != '') {
 			axiosConfigTelegramBot = {
@@ -8505,9 +8432,7 @@ class DeployHandler {
 					method: 'post',
 					data: JSON.stringify({
 						chat_id: req.chatIdTelegram,
-						text: task ?
-							`🚀 : ${task.name} ✅\n🔗 URL ClickUp: ${task.url}\n🌐 URL For Test: ${resGetUrl.result.url}` :
-							`🚀 : ${req.name} ✅\n🌐 URL For Test: ${resGetUrl.result.url}`
+						text: `🚀 : ${req.name} ✅\n🌐 URL For Test: ${resGetUrl.result.url}`
 					})
 				}
 			}
@@ -8516,6 +8441,10 @@ class DeployHandler {
 			if (!resSendMessageTelegram) {
 				return false
 			}
+		}
+
+		if (!resGetUrl) {
+			return false
 		}
 
 		return true
@@ -8595,13 +8524,8 @@ async function run() {
 
 		masterDeployAppBodyRequest.port = Number(inputs.portDeployApp)
 
-		const res = await deployHandler.main(inputs)
+		await deployHandler.main(inputs)
 
-		if (res) {
-			core.info(`🚀 : ✅`)
-		} else {
-			core.info(`🚀 : ❌`)
-		}
 	} catch (error) {
 		core.setFailed(error.message)
 	}
